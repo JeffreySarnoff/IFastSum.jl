@@ -14,11 +14,11 @@ export iFastSum
    comments are as they appear in the thesis
 =#
 
-rc = 0 # indicates if a recursive call of iFastSumAlgorithm occurs
+rc = [0] # indicates if a recursive call of iFastSumAlgorithm occurs
 
 function iFastSum{T<:Real}(x::Array{T,1})
     global rc;
-    rc = 0
+    rc[1] = 0
     n = length(x)
     xs = Array{T,1}(n) # iFastSumAlgorithm is destructive
     copy!(xs, x)       # thanks to Kristoffer Carlsson
@@ -76,17 +76,17 @@ function iFastSumAlgorithm{T<:Real}(x::Array{T,1},n::Int)
         n = count
         # (5)
         if (em==zero(T) || em < eps(s)*0.5)
-            if rc > 0
+            if rc[1] > 0
                 return s # return s if it is a recursive call
             end
             w1, e1 = AddTwo(st, em)
             w2, e2 = AddTwo(st, -em)
             if ((w1+s != s) | (w2+s != s)) || (Round3(s,w1,e1) != s) || (Round3(s,w2,e2) != s)
-                re=1
+                rc[1] = 1
                 s1 = iFastSum(x,n) # first recursive call
                 s,s1 = AddTwo(s,s1)
                 s2 = iFastSum(x,n) # second recursive call
-                re = 0
+                rc[1] = 0
                 s = Round3(s,s1,s2)
              end
              return s
