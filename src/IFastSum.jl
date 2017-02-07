@@ -1,3 +1,7 @@
+module IFastSum
+
+export iFastSum
+
 #=
    follows the algorithms as given in
    "Some Highly Accurate Basic Linear Algebra Subroutines"
@@ -90,3 +94,4 @@ function iFastSumAlgorithm{T<:Real}(x::Array{T,1},n::Int)
     end
 end
 
+end # module IFastSum
