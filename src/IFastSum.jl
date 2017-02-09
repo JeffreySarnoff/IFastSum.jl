@@ -50,7 +50,7 @@ function Round3{T<:Float64}(s0::T, s1::T, s2::T)
 end
 
 
-@inline function Round3{T<:Float32}(s0::T, s1::T, s2::T)
+function Round3{T<:Float32}(s0::T, s1::T, s2::T)
     # s,e = frexp(s1)
     # if (s!=0.5 || (sign(s1)!=sign(s2)))
     if (((reinterpret(UInt64,s1) & 0xc0ffffff) != zero(UInt32)) || (signbit(s1) != signbit(s2)))
