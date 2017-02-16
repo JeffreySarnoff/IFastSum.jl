@@ -14,56 +14,38 @@ export iFastSum
    comments are as they appear in the thesis
 =#
 
-immutable Recursing
-    value::Bool
-end
+rc = Ref{Int}(0) # indicates if a recursive call of iFastSumAlgorithm occurs
 
-const rtrue = Recursing(true)
-const rfalse = Recursing(false)
-
-rc = rfalse # indicates if a recursive call of iFastSumAlgorithm occurs
-
-function iFastSum{T<:AbstractFloat}(x::Array{T,1})
-    global rtrue, rfalse, rc;
-    rc = rtrue
+function iFastSum{T<:Real}(x::Array{T,1})
+    global rc;
+    rc[] = 0
     n = length(x)
     xs = Array{T,1}(n) # iFastSumAlgorithm is destructive
     copy!(xs, x)       # thanks to Kristoffer Carlsson
     iFastSumAlgorithm(xs, n)
 end
 
-@inline function AddTwo{T<:AbstractFloat}(a::T, b::T)
+@inline function AddTwo{T<:Real}(a::T, b::T)
     x = a+b
     z = x-a
     y = (a-(x-z))+(b-z)
     (x,y)
 end
 
-function Round3{T<:Float64}(s0::T, s1::T, s2::T)
+@inline function Round3{T<:Real}(s0::T, s1::T, s2::T)
     # s,e = frexp(s1)
     # if (s!=0.5 || (sign(s1)!=sign(s2)))
-    if (((reinterpret(UInt64,s1) & 0xc01fffffffffffff) != zero(UInt64)) || (signbit(s1) != signbit(s2)))
+    if (((reinterpret(UInt64,s1) & 0x000fffffffffffff) != zero(UInt64)) || (sign(s1) != sign(s2)))
         s0
     else
         1.1*s1 + s0
     end
 end
 
-
-function Round3{T<:Float32}(s0::T, s1::T, s2::T)
-    # s,e = frexp(s1)
-    # if (s!=0.5 || (sign(s1)!=sign(s2)))
-    if (((reinterpret(UInt64,s1) & 0xc0ffffff) != zero(UInt32)) || (signbit(s1) != signbit(s2)))
-        s0
-    else
-        1.1f0*s1 + s0
-    end
-end
-
 # output: the correctly rounded sum of x
 # for initial call, n is length of x
-function iFastSumAlgorithm{T<:AbstractFloat}(x::Array{T,1},n::Int)
-    global rtrue, rfalse, rc
+function iFastSumAlgorithm{T<:Real}(x::Array{T,1},n::Int)
+    global rc
     s = zero(T); loop = 1; # loop counts the number of loops
 
     for i in 1:n # accumlate first approximation
@@ -94,17 +76,17 @@ function iFastSumAlgorithm{T<:AbstractFloat}(x::Array{T,1},n::Int)
         n = count
         # (5)
         if (em==zero(T) || em < eps(s)*0.5)
-            if rc.value
+            if rc == 1
                 return s # return s if it is a recursive call
             end
             w1, e1 = AddTwo(st, em)
             w2, e2 = AddTwo(st, -em)
             if ((w1+s != s) | (w2+s != s)) || (Round3(s,w1,e1) != s) || (Round3(s,w2,e2) != s)
-                rc = rtrue
+                rc = 1
                 s1 = iFastSum(x,n) # first recursive call
                 s,s1 = AddTwo(s,s1)
                 s2 = iFastSum(x,n) # second recursive call
-                rc = rfalse
+                rc = 0
                 s = Round3(s,s1,s2)
              end
              return s
@@ -112,4 +94,4 @@ function iFastSumAlgorithm{T<:AbstractFloat}(x::Array{T,1},n::Int)
     end
 end
 
-end # module IFastSum
+end # module
