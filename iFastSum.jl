@@ -72,22 +72,21 @@ function iFastSumAlgorithm{T<:Real}(x::Array{T,1},n::Int)
         n = count
         # (5)
         if (em==zero(T) || em < eps(s)*0.5)
-            if rc[] > 0
+            if rc == 1
                 return s # return s if it is a recursive call
             end
             w1, e1 = AddTwo(st, em)
             w2, e2 = AddTwo(st, -em)
             if ((w1+s != s) | (w2+s != s)) || (Round3(s,w1,e1) != s) || (Round3(s,w2,e2) != s)
-                rc[]=1
+                rc = 1
                 s1 = iFastSum(x,n) # first recursive call
                 s,s1 = AddTwo(s,s1)
                 s2 = iFastSum(x,n) # second recursive call
-                rc[] = 0
+                rc = 0
                 s = Round3(s,s1,s2)
              end
              return s
         end
     end
 end
-
 
