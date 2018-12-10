@@ -12,7 +12,7 @@
 
 rc = Ref{Int}(0) # indicates if a recursive call of iFastSumAlgorithm occurs
 
-function iFastSum{T<:Real}(x::Array{T,1})
+function iFastSum(x::Array{T,1}) where {T<:Real}
     global rc;
     rc[] = 0
     n = length(x)
@@ -21,14 +21,14 @@ function iFastSum{T<:Real}(x::Array{T,1})
     iFastSumAlgorithm(xs, n)
 end
 
-@inline function AddTwo{T<:Real}(a::T, b::T)
+@inline function AddTwo(a::T, b::T) where {T<:Real}
     x = a+b
     z = x-a
     y = (a-(x-z))+(b-z)
     (x,y)
 end
 
-@inline function Round3{T<:Real}(s0::T, s1::T, s2::T)
+@inline function Round3(s0::T, s1::T, s2::T) where {T<:Real}
     # s,e = frexp(s1)
     # if (s!=0.5 || (sign(s1)!=sign(s2)))
     if (((reinterpret(UInt64,s1) & 0x000fffffffffffff) != zero(UInt64)) || (sign(s1) != sign(s2)))
@@ -40,7 +40,7 @@ end
 
 # output: the correctly rounded sum of x
 # for initial call, n is length of x
-function iFastSumAlgorithm{T<:Real}(x::Array{T,1},n::Int)
+function iFastSumAlgorithm(x::Array{T,1},n::Int) where {T<:Real}
     global rc
     s = zero(T); loop = 1; # loop counts the number of loops
 
